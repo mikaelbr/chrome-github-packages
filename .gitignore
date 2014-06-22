@@ -1,0 +1,5 @@
+chrome-github-packages.pem
+chrome-github-packages.crx
+chrome-github-packages.zip
+chrome-github-packages/
+.DS_Store

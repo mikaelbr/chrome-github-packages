@@ -1,0 +1,20 @@
+{
+  "name": "Github Package.json Enhancer",
+  "description": "Enhance Package.json on Github by linking up modules to NPM",
+  "version": "1",
+  "manifest_version": 2,
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/package.json",
+        "https://github.com/*/package.json"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  }
+}
