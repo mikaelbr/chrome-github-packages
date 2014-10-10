@@ -64,7 +64,7 @@
       var line = lines[i];
       if (!line) continue;
 
-      if (isStartNode(line, startName)) {
+      if (isStartNode(line, startName) && isNotEmptyNode(line)) {
         insideScope = true;
         continue;
       }
@@ -82,6 +82,15 @@
     }
 
     return [];
+  }
+
+  function isNotEmptyNode(node) {
+    var nts = node.querySelectorAll('.p');
+    var nt = nts[nts.length - 1];
+    if (!nt) return true;
+    if (!nt.innerText) return true;
+
+    return !nt.innerText.match(/\{\s*\}/);
   }
 
   function isStartNode(node, name) {
