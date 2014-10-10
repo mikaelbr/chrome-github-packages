@@ -56,7 +56,7 @@
   }
 
   function getPackageElements (startName) {
-    var lines = document.querySelectorAll('.line');
+    var lines = document.querySelectorAll('.js-file-line');
     var packageNodes = [];
     var insideScope = false;
 
