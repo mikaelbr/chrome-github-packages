@@ -1,4 +1,4 @@
-(function (undefined) {
+(function () {
 
   'use strict';
 
@@ -57,7 +57,7 @@
         return pl.parentNode.querySelectorAll('.pl-s1')[1];
       }
     }
-    return undefined;
+    return void 0;
   }
 
   function replacePackagesWithLinks(elements) {
