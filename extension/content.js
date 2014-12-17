@@ -1,4 +1,5 @@
-(function () {
+(function (undefined) {
+
   'use strict';
 
   var base = 'https://www.npmjs.org/package/';
@@ -14,10 +15,13 @@
     var devPackages = getPackageElements('devDependencies');
     replacePackagesWithLinks(devPackages);
 
+    var peerPackages = getPackageElements('peerDependencies');
+    replacePackagesWithLinks(peerPackages);
+
     var nameField = getNameField();
 
     if (nameField) {
-      replacePackagesWithLinks(nameField.querySelectorAll('.s2'));
+      replacePackagesWithLinks([nameField]);
     }
   }
 
@@ -27,14 +31,14 @@
   }
 
   function getNameField () {
-    var nts = document.querySelectorAll('.nt');
-    for(var i = 0, len = nts.length; i < len; i++) {
-      var nt = nts[i];
-      if (nt.innerText.indexOf("name") !== -1) {
-        return nt.parentNode;
+    var pls = document.querySelectorAll('.pl-s1');
+    for(var i = 0, len = pls.length; i < len; i++) {
+      var pl = pls[i];
+      if (pl.innerText.indexOf("name") !== -1) {
+        return pl.parentNode.querySelectorAll('.pl-s1')[1];
       }
     }
-    return void 0;
+    return undefined;
   }
 
   function replacePackagesWithLinks(elements) {
@@ -64,7 +68,7 @@
       var line = lines[i];
       if (!line) continue;
 
-      if (isStartNode(line, startName) && isNotEmptyNode(line)) {
+      if (isStartNode(line, startName) && !isEmptyNode(line)) {
         insideScope = true;
         continue;
       }
@@ -75,7 +79,7 @@
         return packageNodes;
       }
 
-      var child = line.querySelector('.nt');
+      var child = line.querySelector('.pl-s1');
       if (child) {
         packageNodes.push(child);
       }
@@ -84,26 +88,18 @@
     return [];
   }
 
-  function isNotEmptyNode(node) {
-    var nts = node.querySelectorAll('.p');
-    var nt = nts[nts.length - 1];
-    if (!nt) return true;
-    if (!nt.innerText) return true;
-
-    return !nt.innerText.match(/\{\s*\}/);
+  function isEmptyNode(node) {
+    return node.innerText.match(/\{\s*\}/);
   }
 
   function isStartNode(node, name) {
-    var nt = node.querySelector('.nt');
-    if (!nt) return false;
+    var pl = node.querySelector('.pl-s1');
+    if (!pl) return false;
 
-    return nt.innerText.indexOf(name) !== -1;
+    return pl.innerText.indexOf(name) !== -1;
   }
 
   function isEndNode(node) {
-    var nt = node.querySelector('.p');
-    if (!nt) return false;
-
-    return nt.innerText.indexOf("}") !== -1;
+    return node.innerText.indexOf("}") !== -1;
   }
 }());
