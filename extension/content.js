@@ -4,7 +4,26 @@
 
   var base = 'https://www.npmjs.org/package/';
 
-  replaceModuleLinks();
+  init();
+
+  function init () {
+    if (isPackageJsonFile()) {
+      replaceModuleLinks();
+      return;
+    }
+    document.body.addEventListener('click', function (event) {
+      if ((event.target.getAttribute('title') !== 'package.json')) {
+        return;
+      }
+      var id = setInterval(function () {
+        if (!isPackageJsonFile()) {
+          return;
+        }
+        clearInterval(id);
+        replaceModuleLinks();
+      }, 16);
+    }, false);
+  }
 
   function replaceModuleLinks () {
     if(!isPackageJsonFile()) return;
@@ -27,7 +46,7 @@
 
   function isPackageJsonFile () {
     var title = document.querySelector('.final-path');
-    return (title.textContent === 'package.json');
+    return (title && title.textContent === 'package.json');
   }
 
   function getNameField () {
