@@ -1,13 +1,12 @@
 {
   "name": "Github Package.json Enhancer",
   "description": "Enhance Package.json on Github by linking up modules to NPM",
-  "version": "4",
+  "version": "5",
   "manifest_version": 2,
   "content_scripts": [
     {
       "matches": [
-        "https://github.com/*/package.json",
-        "https://github.com/*/package.json"
+        "https://github.com/*"
       ],
       "js": ["content.js"]
     }
