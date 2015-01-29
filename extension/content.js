@@ -34,6 +34,9 @@
     var devPackages = getPackageElements('devDependencies');
     replacePackagesWithLinks(devPackages);
 
+    var optionalPackages = getPackageElements('optionalDependencies');
+    replacePackagesWithLinks(optionalPackages);
+
     var peerPackages = getPackageElements('peerDependencies');
     replacePackagesWithLinks(peerPackages);
 
