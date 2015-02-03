@@ -7,7 +7,7 @@
 
 ## Install
 
-Can be installed using the [Chrome webstore](#).
+Can be installed using the [Chrome webstore](https://chrome.google.com/webstore/detail/github-packagejson-enhanc/jlochnaakbagkffoegmapgeenhhgljic).
 
 
 ## License
