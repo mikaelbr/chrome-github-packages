@@ -53,11 +53,11 @@
   }
 
   function getNameField () {
-    var pls = document.querySelectorAll('.pl-s1');
+    var pls = document.querySelectorAll('.pl-s');
     for(var i = 0, len = pls.length; i < len; i++) {
       var pl = pls[i];
       if (pl.innerText.indexOf("name") !== -1) {
-        return pl.parentNode.querySelectorAll('.pl-s1')[1];
+        return pl.parentNode.querySelectorAll('.pl-s')[1];
       }
     }
     return void 0;
@@ -101,7 +101,7 @@
         return packageNodes;
       }
 
-      var child = line.querySelector('.pl-s1');
+      var child = line.querySelector('.pl-s');
       if (child) {
         packageNodes.push(child);
       }
@@ -115,7 +115,7 @@
   }
 
   function isStartNode(node, name) {
-    var pl = node.querySelector('.pl-s1');
+    var pl = node.querySelector('.pl-s');
     if (!pl) return false;
 
     return pl.innerText.indexOf(name) !== -1;
