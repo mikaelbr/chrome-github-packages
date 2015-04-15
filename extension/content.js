@@ -40,6 +40,9 @@
     var peerPackages = getPackageElements('peerDependencies');
     replacePackagesWithLinks(peerPackages);
 
+    var bundledPackages = getPackageElements('bundledDependencies');
+    replacePackagesWithLinks(bundledPackages);
+
     var nameField = getNameField();
 
     if (nameField) {
