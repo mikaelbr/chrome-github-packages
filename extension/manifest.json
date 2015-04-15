@@ -1,7 +1,7 @@
 {
   "name": "Github Package.json Enhancer",
   "description": "Enhance Package.json on Github by linking up modules to NPM",
-  "version": "6",
+  "version": "7",
   "manifest_version": 2,
   "content_scripts": [
     {
