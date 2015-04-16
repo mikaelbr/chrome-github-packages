@@ -2,6 +2,8 @@
 
 > Chrome Extension to link packages in package.json to NPM site
 
+See video: https://www.youtube.com/watch?v=IzTQYCKJ-JY
+
 ![Github Package.json Enhancer](screenshot.png)
 
 
