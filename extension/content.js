@@ -3,56 +3,106 @@
   'use strict';
 
   var base = 'https://www.npmjs.org/package/';
+  var extReg = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+  var ext = ['.coffee', '.js'];
+  var reqReg = /require\({0,1}\s*('|")((?:[^\.\/\-\_])[\w\/\-!\.]+)\1\s*\){0,1}/;
 
   init();
 
   function init () {
-    if (isPackageJsonFile()) {
-      replaceModuleLinks();
+
+    if (isParsableFile()) {
+      replaceModules();
       return;
     }
+
+    var max = 100;
+    var cur = 0;
+
     document.body.addEventListener('click', function (event) {
-      if ((event.target.getAttribute('title') !== 'package.json')) {
+      if (!event.target.classList.contains('js-directory-link')) {
         return;
       }
       var id = setInterval(function () {
-        if (!isPackageJsonFile()) {
+        cur++;
+        if (!isParsableFile()) {
+          // Don't clear interval. Wait for page to load.
+          return;
+        }
+        if (cur > max) {
+          clearInterval(id);
           return;
         }
         clearInterval(id);
-        replaceModuleLinks();
+        replaceModules();
       }, 16);
     }, false);
+
   }
 
-  function replaceModuleLinks () {
-    if(!isPackageJsonFile()) return;
+  function replaceModules () {
+    if (isPackageJsonFile()) {
+      replaceDependencies();
+    } else if (isParsableFile()) {
+      replaceRequires();
+      replaceImports();
+    }
+  }
 
-    var packages = getPackageElements('dependencies');
-    replacePackagesWithLinks(packages);
+  function replaceModulesWithLinks (elements) {
+    for(var i = 0, len = elements.length; i < len; i++) {
+      var el = elements[i];
+      var a = createLink(el);
+      el.innerHTML = "";
+      el.appendChild(a);
+    }
+  }
 
-    var devPackages = getPackageElements('devDependencies');
-    replacePackagesWithLinks(devPackages);
+  function replaceDependencies () {
 
-    var optionalPackages = getPackageElements('optionalDependencies');
-    replacePackagesWithLinks(optionalPackages);
+    var packages = getDependencyElements('dependencies');
+    replaceModulesWithLinks(packages);
 
-    var peerPackages = getPackageElements('peerDependencies');
-    replacePackagesWithLinks(peerPackages);
+    var devPackages = getDependencyElements('devDependencies');
+    replaceModulesWithLinks(devPackages);
 
-    var bundledPackages = getPackageElements('bundledDependencies');
-    replacePackagesWithLinks(bundledPackages);
+    var optionalPackages = getDependencyElements('optionalDependencies');
+    replaceModulesWithLinks(optionalPackages);
+
+    var peerPackages = getDependencyElements('peerDependencies');
+    replaceModulesWithLinks(peerPackages);
+
+    var bundledPackages = getDependencyElements('bundledDependencies');
+    replaceModulesWithLinks(bundledPackages);
 
     var nameField = getNameField();
 
     if (nameField) {
-      replacePackagesWithLinks([nameField]);
+      replaceModulesWithLinks([nameField]);
     }
+
   }
 
-  function isPackageJsonFile () {
-    var title = document.querySelector('.final-path');
-    return (title && title.textContent === 'package.json');
+  function replaceRequires () {
+    var requires = getRequireElements();
+    replaceModulesWithLinks(requires);
+  }
+
+  function replaceImports () {
+    var imports = getImportElements();
+    replaceModulesWithLinks(imports);
+  }
+
+  function getExtname (path) {
+    return extReg.exec(path)[4];
+  }
+
+  function getLines () {
+    return document.querySelectorAll('.js-file-line');
+  }
+
+  function getTitle () {
+    return document.querySelector('.final-path');
   }
 
   function getNameField () {
@@ -66,65 +116,95 @@
     return void 0;
   }
 
-  function replacePackagesWithLinks(elements) {
-    for(var i = 0, len = elements.length; i < len; i++) {
-      var el = elements[i];
-      var a = createLink(elements[i]);
-      el.innerHTML = "";
-      el.appendChild(a);
-    }
+  function isPackageJsonFile () {
+    var title = getTitle();
+    return (title && title.textContent === 'package.json');
+  }
+
+  function isParsableFile () {
+    var filename = getTitle();
+    return (filename && ext.indexOf(getExtname(filename.textContent)) !== -1);
   }
 
   function createLink (el) {
-    var text = el.textContent.replace(/"/g, '');
+    var text = el.textContent;
+    var quote = text.indexOf("'") > -1 ? "'" : '"';
     var a = document.createElement('a');
+    text = text.replace(/("|')/g, '');
     a.href = base + text;
-    a.innerText = '"' + text + '"';
+    a.innerText = quote + text + quote;
     a.title = "Go to NPM Module site for " + text;
     return a;
   }
 
-  function getPackageElements (startName) {
-    var lines = document.querySelectorAll('.js-file-line');
-    var packageNodes = [];
+  function getDependencyElements (startName) {
+    var lines = getLines();
+    var elements = [];
     var insideScope = false;
 
     for(var i = 0, len = lines.length; i < len; i++) {
       var line = lines[i];
       if (!line) continue;
 
-      if (isStartNode(line, startName) && !isEmptyNode(line)) {
+      if (isStartDependencyNode(line, startName) && !isEmptyDependencyNode(line)) {
         insideScope = true;
         continue;
       }
 
       if (!insideScope) continue;
 
-      if (isEndNode(line)) {
-        return packageNodes;
+      if (isEndDependencyNode(line)) {
+        return elements;
       }
 
       var child = line.querySelector('.pl-s');
       if (child) {
-        packageNodes.push(child);
+        elements.push(child);
       }
     }
 
     return [];
   }
 
-  function isEmptyNode(node) {
+  function getRequireElements () {
+    var lines = getLines();
+    var elements = [];
+
+    for(var i = 0, len = lines.length; i < len; i++) {
+      var line = lines[i];
+      if (!line) continue;
+
+      var text = line.textContent;
+      if (!reqReg.test(text)) continue;
+
+      var child = line.querySelector('.pl-s');
+      if (child) {
+        elements.push(child);
+      }
+    }
+
+    return elements;
+  }
+
+  function getImportElements () {
+    return [];
+  }
+
+  function isEmptyDependencyNode (node) {
     return node.innerText.match(/\{\s*\}/);
   }
 
-  function isStartNode(node, name) {
+  function isStartDependencyNode (node, name) {
     var pl = node.querySelector('.pl-s');
     if (!pl) return false;
 
     return pl.innerText.indexOf(name) !== -1;
   }
 
-  function isEndNode(node) {
+  function isEndDependencyNode (node) {
     return node.innerText.indexOf("}") !== -1;
   }
+
 }());
+
+// vim: set et sw=2 sts=2 ts=2 :
