@@ -11,12 +11,7 @@
 
   function init () {
 
-    if (isParsableFile()) {
-      replaceModules();
-      return;
-    }
-
-    var max = 100;
+    var max = 300;
     var cur = 0;
 
     document.body.addEventListener('click', function (event) {
@@ -25,28 +20,31 @@
       }
       var id = setInterval(function () {
         cur++;
-        if (!isParsableFile()) {
-          // Don't clear interval. Wait for page to load.
+        if (replaceModules()) {
+          clearInterval(id);
           return;
         }
         if (cur > max) {
           clearInterval(id);
           return;
         }
-        clearInterval(id);
-        replaceModules();
       }, 16);
     }, false);
 
+    replaceModules();
   }
 
   function replaceModules () {
     if (isPackageJsonFile()) {
       replaceDependencies();
-    } else if (isParsableFile()) {
+      return true;
+    }
+    else if (isParsableFile()) {
       replaceRequires();
       replaceImports();
+      return true;
     }
+    return false;
   }
 
   function replaceModulesWithLinks (elements) {
